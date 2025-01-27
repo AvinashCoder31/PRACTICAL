@@ -1,0 +1,180 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Node structure representing a term in the polynomial
+struct PolynomialNode {
+    int coefficient;
+    int exponent;
+    struct PolynomialNode* next;
+};
+
+// Function prototypes
+void createTerm(int coefficient, int exponent, struct PolynomialNode** poly);
+void displayPolynomial(struct PolynomialNode* poly);
+void addPolynomials(struct PolynomialNode* poly1, struct PolynomialNode* poly2, struct PolynomialNode** result);
+void multiplyPolynomials(struct PolynomialNode* poly1, struct PolynomialNode* poly2, struct PolynomialNode** result);
+void addTermToResult(struct PolynomialNode** result, int coefficient, int exponent);
+
+int main() {
+    struct PolynomialNode *polynomial1 = NULL, *polynomial2 = NULL, *resultPolynomial = NULL;
+    int choice, numTerms, coefficient, exponent;
+
+    while (1) {
+        printf("\nMenu:\n");
+        printf("1. Create First Polynomial\n");
+        printf("2. Create Second Polynomial\n");
+        printf("3. Add Polynomials\n");
+        printf("4. Multiply Polynomials\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Enter the number of terms for the first polynomial: ");
+                scanf("%d", &numTerms);
+                while (numTerms-- > 0) {
+                    printf("Enter coefficient and exponent: ");
+                    scanf("%d %d", &coefficient, &exponent);
+                    createTerm(coefficient, exponent, &polynomial1);
+                }
+                printf("First Polynomial: ");
+                displayPolynomial(polynomial1);
+                break;
+
+            case 2:
+                printf("Enter the number of terms for the second polynomial: ");
+                scanf("%d", &numTerms);
+                while (numTerms-- > 0) {
+                    printf("Enter coefficient and exponent: ");
+                    scanf("%d %d", &coefficient, &exponent);
+                    createTerm(coefficient, exponent, &polynomial2);
+                }
+                printf("Second Polynomial: ");
+                displayPolynomial(polynomial2);
+                break;
+
+            case 3:
+                addPolynomials(polynomial1, polynomial2, &resultPolynomial);
+                printf("Resultant Polynomial (Addition): ");
+                displayPolynomial(resultPolynomial);
+                resultPolynomial = NULL; // Reset for reuse
+                break;
+
+            case 4:
+                multiplyPolynomials(polynomial1, polynomial2, &resultPolynomial);
+                printf("Resultant Polynomial (Multiplication): ");
+                displayPolynomial(resultPolynomial);
+                resultPolynomial = NULL; // Reset for reuse
+                break;
+
+            case 5:
+                printf("Exiting program.\n");
+                exit(0);
+
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    }
+    return 0;
+}
+
+// Function to create a new term and add it to the polynomial
+void createTerm(int coefficient, int exponent, struct PolynomialNode** poly) {
+    struct PolynomialNode* newNode = (struct PolynomialNode*)malloc(sizeof(struct PolynomialNode));
+    newNode->coefficient = coefficient;
+    newNode->exponent = exponent;
+    newNode->next = NULL;
+
+    if (*poly == NULL) {
+        *poly = newNode;
+    } else {
+        struct PolynomialNode* temp = *poly;
+        while (temp->next != NULL) {
+            temp = temp->next;
+        }
+        temp->next = newNode;
+    }
+}
+
+// Function to display the polynomial
+void displayPolynomial(struct PolynomialNode* poly) {
+    while (poly != NULL) {
+        printf("%dx^%d", poly->coefficient, poly->exponent);
+        poly = poly->next;
+        if (poly != NULL) {
+            printf(" + ");
+        }
+    }
+    printf("\n");
+}
+
+// Function to add two polynomials
+void addPolynomials(struct PolynomialNode* poly1, struct PolynomialNode* poly2, struct PolynomialNode** result) {
+    while (poly1 != NULL && poly2 != NULL) {
+        if (poly1->exponent > poly2->exponent) {
+            createTerm(poly1->coefficient, poly1->exponent, result);
+            poly1 = poly1->next;
+        } else if (poly1->exponent < poly2->exponent) {
+            createTerm(poly2->coefficient, poly2->exponent, result);
+            poly2 = poly2->next;
+        } else {
+            createTerm(poly1->coefficient + poly2->coefficient, poly1->exponent, result);
+            poly1 = poly1->next;
+            poly2 = poly2->next;
+        }
+    }
+
+    while (poly1 != NULL) {
+        createTerm(poly1->coefficient, poly1->exponent, result);
+        poly1 = poly1->next;
+    }
+
+    while (poly2 != NULL) {
+        createTerm(poly2->coefficient, poly2->exponent, result);
+        poly2 = poly2->next;
+    }
+}
+
+// Function to add a term to the result polynomial (used in multiplication)
+void addTermToResult(struct PolynomialNode** result, int coefficient, int exponent) {
+    struct PolynomialNode* temp = *result;
+    struct PolynomialNode* prev = NULL;
+
+    while (temp != NULL && temp->exponent > exponent) {
+        prev = temp;
+        temp = temp->next;
+    }
+
+    if (temp != NULL && temp->exponent == exponent) {
+        temp->coefficient += coefficient;
+    } else {
+        struct PolynomialNode* newNode = (struct PolynomialNode*)malloc(sizeof(struct PolynomialNode));
+        newNode->coefficient = coefficient;
+        newNode->exponent = exponent;
+        newNode->next = temp;
+
+        if (prev == NULL) {
+            *result = newNode;
+        } else {
+            prev->next = newNode;
+        }
+    }
+}
+
+// Function to multiply two polynomials
+void multiplyPolynomials(struct PolynomialNode* poly1, struct PolynomialNode* poly2, struct PolynomialNode** result) {
+    struct PolynomialNode* temp1 = poly1;
+    struct PolynomialNode* temp2;
+
+    while (temp1 != NULL) {
+        temp2 = poly2;
+        while (temp2 != NULL) {
+            int coefficient = temp1->coefficient * temp2->coefficient;
+            int exponent = temp1->exponent + temp2->exponent;
+            addTermToResult(result, coefficient, exponent);
+            temp2 = temp2->next;
+        }
+        temp1 = temp1->next;
+    }
+}
