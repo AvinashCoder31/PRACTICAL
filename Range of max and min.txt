@@ -1,0 +1,61 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node {
+    int data;
+    struct Node *left, *right;
+} Node;
+
+Node* createNode(int data) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->data = data;
+    newNode->left = newNode->right = NULL;
+    return newNode;
+}
+
+Node* insert(Node* root, int data) {
+    if (root == NULL)
+        return createNode(data);
+    if (data < root->data)
+        root->left = insert(root->left, data);
+    else if (data > root->data)
+        root->right = insert(root->right, data);
+    return root;
+}
+
+void findMinMaxInRange(Node* root, int low, int high, int* min, int* max) {
+    if (root == NULL)
+        return;
+
+    findMinMaxInRange(root->left, low, high, min, max);
+
+    if (root->data >= low && root->data <= high) {
+        if (*min == -1 || root->data < *min)
+            *min = root->data;
+        if (*max == -1 || root->data > *max)
+            *max = root->data;
+    }
+
+    findMinMaxInRange(root->right, low, high, min, max);
+}
+
+int main() {
+    Node* root = NULL;
+    root = insert(root, 15);
+    root = insert(root, 10);
+    root = insert(root, 20);
+    root = insert(root, 8);
+    root = insert(root, 12);
+    root = insert(root, 18);
+    root = insert(root, 25);
+
+    int low = 12, high = 20;
+    int min = -1, max = -1;
+
+    findMinMaxInRange(root, low, high, &min, &max);
+
+    printf("Minimum value in range [%d, %d]: %d\n", low, high, min);
+    printf("Maximum value in range [%d, %d]: %d\n", low, high, max);
+
+    return 0;
+}

@@ -1,0 +1,64 @@
+#include <stdio.h>
+
+#define SIZE 20
+
+int stack[SIZE];
+int top = -1;
+
+void push(int x) {
+    if (top == SIZE - 1) {
+        printf("Stack overflow\n");
+        return;
+    }
+
+    top++;
+    stack[top] = x;
+}
+
+int pop() {
+    if (top == -1) {
+        printf("Stack underflow\n");
+        return -1;
+    }
+
+    return stack[top--];
+}
+
+int main() {
+    char exp[20];
+    printf("Enter an expression: ");
+    scanf("%s", exp);
+
+    int i = 0;
+    while (exp[i] != '\0') {
+        if (isdigit(exp[i])) {
+            int num = exp[i] - '0';
+            push(num);
+        } else {
+            int n2 = pop();
+            int n1 = pop();
+
+            switch (exp[i]) {
+                case '+':
+                    push(n1 + n2);
+                    break;
+                case '-':
+                    push(n1 - n2);
+                    break;
+                case '*':
+                    push(n1 * n2);
+                    break;
+                case '/':
+                    push(n1 / n2);
+                    break;
+                default:
+                    printf("Invalid operator\n");
+            }
+        }
+        i++;
+    }
+
+    printf("Result: %d\n", pop());
+
+    return 0;
+}

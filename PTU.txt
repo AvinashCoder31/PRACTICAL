@@ -1,0 +1,116 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_STUDENTS 100
+#define MAX_SEATS 10
+
+typedef struct {
+    char name[50];
+    int rank;
+    float meritMarks;
+    char category[20];
+    int allocated;
+} Student;
+
+void inputStudentDetails(Student students[], int *n);
+void allocateSeats(Student students[], int n, int seats[]);
+void displayAllocatedSeats(Student students[], int n);
+void displayAvailableSeats(int seats[]);
+
+int main() {
+    Student students[MAX_STUDENTS];
+    int n = 0;
+    int seats[4] = {4, 3, 2, 1};
+
+    int choice;
+    while (1) {
+        printf("\nPEC Seat Allocation System:");
+        printf("\n1. Enter Student Details");
+        printf("\n2. Allocate Seats");
+        printf("\n3. Display Allocated Seats");
+        printf("\n4. Display Available Seats");
+        printf("\n5. Exit");
+        printf("\n\nEnter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                inputStudentDetails(students, &n);
+                break;
+            case 2:
+                allocateSeats(students, n, seats);
+                break;
+            case 3:
+                displayAllocatedSeats(students, n);
+                break;
+            case 4:
+                displayAvailableSeats(seats);
+                break;
+            case 5:
+                exit(0);
+            default:
+                printf("\nInvalid choice! Please try again.");
+        }
+    }
+    return 0;
+}
+
+void inputStudentDetails(Student students[], int *n) {
+    printf("\nEnter the number of students: ");
+    int count;
+    scanf("%d", &count);
+
+    for (int i = 0; i < count; i++) {
+        printf("\nEnter details for student %d:\n", *n + 1);
+        printf("Name: ");
+        scanf("%s", students[*n].name);
+        printf("Rank: ");
+        scanf("%d", &students[*n].rank);
+        printf("Merit Marks: ");
+        scanf("%f", &students[*n].meritMarks);
+        printf("Category (General/OBC/SC-ST/Physically-Challenged): ");
+        scanf("%s", students[*n].category);
+        students[*n].allocated = 0;
+        (*n)++;
+    }
+}
+
+void allocateSeats(Student students[], int n, int seats[]) {
+    for (int i = 0; i < n; i++) {
+        if (students[i].allocated == 1) continue;
+
+        if (strcmp(students[i].category, "General") == 0 && seats[0] > 0) {
+            seats[0]--;
+            students[i].allocated = 1;
+        } else if (strcmp(students[i].category, "OBC") == 0 && seats[1] > 0) {
+            seats[1]--;
+            students[i].allocated = 1;
+        } else if (strcmp(students[i].category, "SC-ST") == 0 && seats[2] > 0) {
+            seats[2]--;
+            students[i].allocated = 1;
+        } else if (strcmp(students[i].category, "Physically-Challenged") == 0 && seats[3] > 0) {
+            seats[3]--;
+            students[i].allocated = 1;
+        }
+    }
+    printf("\nSeat allocation process completed.\n");
+}
+
+void displayAllocatedSeats(Student students[], int n) {
+    printf("\nAllocated Seats:\n");
+    for (int i = 0; i < n; i++) {
+        if (students[i].allocated == 1) {
+            printf("Name: %s, Rank: %d, Merit Marks: %.2f, Category: %s\n",
+                   students[i].name, students[i].rank, students[i].meritMarks, students[i].category);
+        }
+    }
+}
+
+void displayAvailableSeats(int seats[]) {
+    printf("\nAvailable Seats:\n");
+    printf("General: %d\n", seats[0]);
+    printf("OBC: %d\n", seats[1]);
+    printf("SC/ST: %d\n", seats[2]);
+    printf("Physically Challenged: %d\n", seats[3]);
+}

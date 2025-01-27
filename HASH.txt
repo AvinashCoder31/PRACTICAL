@@ -1,0 +1,101 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define SIZE 10
+
+typedef struct Node {
+    int key;
+    int value;
+    struct Node* next;
+} Node;
+
+Node* hashTable[SIZE];
+
+int hashFunction(int key) {
+    return key % SIZE;
+}
+
+Node* createNode(int key, int value) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->key = key;
+    newNode->value = value;
+    newNode->next = NULL;
+    return newNode;
+}
+
+void insert(int key, int value) {
+    int index = hashFunction(key);
+    Node* newNode = createNode(key, value);
+    if (hashTable[index] == NULL) {
+        hashTable[index] = newNode;
+    } else {
+        Node* temp = hashTable[index];
+        while (temp->next != NULL) {
+            if (temp->key == key) {
+                temp->value = value;
+                free(newNode);
+                return;
+            }
+            temp = temp->next;
+        }
+        if (temp->key == key) {
+            temp->value = value;
+            free(newNode);
+            return;
+        }
+        temp->next = newNode;
+    }
+}
+
+int search(int key) {
+    int index = hashFunction(key);
+    Node* temp = hashTable[index];
+    while (temp != NULL) {
+        if (temp->key == key) return temp->value;
+        temp = temp->next;
+    }
+    return -1;
+}
+
+void deleteKey(int key) {
+    int index = hashFunction(key);
+    Node* temp = hashTable[index];
+    Node* prev = NULL;
+    while (temp != NULL && temp->key != key) {
+        prev = temp;
+        temp = temp->next;
+    }
+    if (temp == NULL) return;
+    if (prev == NULL) hashTable[index] = temp->next;
+    else prev->next = temp->next;
+    free(temp);
+}
+
+void display() {
+    for (int i = 0; i < SIZE; i++) {
+        printf("Index %d: ", i);
+        Node* temp = hashTable[i];
+        while (temp != NULL) {
+            printf("(%d, %d) -> ", temp->key, temp->value);
+            temp = temp->next;
+        }
+        printf("NULL\n");
+    }
+}
+
+int main() {
+    for (int i = 0; i < SIZE; i++) hashTable[i] = NULL;
+    insert(1, 10);
+    insert(2, 20);
+    insert(12, 120);
+    insert(22, 220);
+    insert(32, 320);
+    display();
+    int key = 22;
+    int value = search(key);
+    if (value != -1) printf("Key %d found with value %d\n", key, value);
+    else printf("Key %d not found\n", key);
+    deleteKey(12);
+    printf("After deleting key 12:\n");
+    display();
+    return 0;
+}

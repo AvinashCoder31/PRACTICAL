@@ -1,0 +1,65 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAXSIZE 10
+
+int front = -1, rear = -1;
+int queue[MAXSIZE];
+
+void enqueue(int data) {
+    if (rear == MAXSIZE - 1) {
+        printf("Queue is full, cannot enqueue %d\n", data);
+        return;
+    }
+
+    if (front == -1) {
+        front = 0;
+    }
+
+    rear++;
+    queue[rear] = data;
+    printf("Enqueued: %d\n", data);
+}
+
+int dequeue() {
+    if (front == -1) {
+        printf("Queue is empty, cannot dequeue\n");
+        return -1;
+    }
+
+    int data = queue[front];
+    if (front == rear) {
+        front = rear = -1;
+    } else {
+        front++;
+    }
+    return data;
+}
+
+void displayQueue() {
+    if (front == -1) {
+        printf("Queue is empty\n");
+        return;
+    }
+
+    printf("Queue elements: ");
+    for (int i = front; i <= rear; i++) {
+        printf("%d ", queue[i]);
+    }
+    printf("\n");
+}
+
+int main() {
+    enqueue(10);
+    enqueue(20);
+    enqueue(30);
+
+    displayQueue();
+
+    dequeue();
+    dequeue();
+
+    displayQueue();
+
+    return 0;
+}
