@@ -1,0 +1,138 @@
+#include <stdio.h>
+#include <conio.h>
+#include <stdlib.h>
+
+typedef struct node {
+    int value;           // Data in the node
+    struct node *prev;   // Pointer to the previous node
+    struct node *next;   // Pointer to the next node
+} Node;
+
+Node *head, *tail, *temp, *newNode, *prevNode;
+int totalNodes, position;
+
+void createNode(void);
+void insertNode(void);
+void deleteNode(void);
+void displayList(void);
+
+void main() {
+    int n, option;
+    head = NULL;
+    printf("Enter the number of nodes:\n");
+    scanf("%d", &n);
+    totalNodes = n;
+
+    // Create initial nodes
+    for (int i = 1; i <= n; i++) {
+        createNode();
+    }
+
+    printf("\nEnter your option:\n");
+    printf("1. Insert\n2. Delete\n3. Display\n4. Exit\n");
+
+    do {
+        scanf("%d", &option);
+        switch (option) {
+            case 1:
+                insertNode();
+                totalNodes++;
+                break;
+            case 2:
+                deleteNode();
+                totalNodes--;
+                if (totalNodes == 0) {
+                    printf("\nThe list is empty\n");
+                }
+                break;
+            case 3:
+                printf("List elements are:\n");
+                displayList();
+                break;
+            default:
+                printf("Invalid option\n");
+        }
+        printf("\nEnter your option:\n");
+    } while (option != 4);
+
+    getch();
+}
+
+void createNode(void) {
+    if (head == NULL) {
+        head = (Node *) malloc(sizeof(Node));
+        printf("Enter the element:\n");
+        scanf("%d", &head->value);
+        head->prev = NULL;
+        head->next = NULL;
+        tail = head;
+    } else {
+        newNode = (Node *) malloc(sizeof(Node));
+        printf("\nEnter the element:\n");
+        scanf("%d", &newNode->value);
+        newNode->prev = tail;
+        newNode->next = NULL;
+        tail->next = newNode;
+        tail = newNode;
+    }
+}
+
+void insertNode(void) {
+    newNode = (Node *) malloc(sizeof(Node));
+    printf("Enter the element to be inserted:\n");
+    scanf("%d", &newNode->value);
+    printf("Enter the position to insert:\n");
+    scanf("%d", &position);
+
+    if (position == 1) {
+        newNode->prev = NULL;
+        newNode->next = head;
+        head->prev = newNode;
+        head = newNode;
+    } else {
+        temp = head;
+        for (int i = 1; i < position - 1; i++) {
+            temp = temp->next;
+        }
+        newNode->next = temp->next;
+        newNode->prev = temp;
+        if (temp->next != NULL) {
+            temp->next->prev = newNode;
+        }
+        temp->next = newNode;
+    }
+}
+
+void deleteNode(void) {
+    printf("Enter the position to delete:\n");
+    scanf("%d", &position);
+
+    if (position == 1) {
+        temp = head;
+        head = head->next;
+        if (head != NULL) {
+            head->prev = NULL;
+        }
+        free(temp);
+    } else {
+        temp = head;
+        for (int i = 1; i < position - 1; i++) {
+            temp = temp->next;
+        }
+        prevNode = temp->next;
+        temp->next = prevNode->next;
+        if (prevNode->next != NULL) {
+            prevNode->next->prev = temp;
+        }
+        free(prevNode);
+    }
+}
+
+void displayList(void) {
+    temp = head;
+    while (temp != NULL) {
+        printf("\t%d", temp->value);
+        temp = temp->next;
+    }
+    printf("\n");
+}
